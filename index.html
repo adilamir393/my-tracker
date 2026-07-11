@@ -3,87 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing Request</title>
+    <title>Redirecting...</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin-top: 50px;
+            margin-top: 100px;
             background-color: #f4f4f9;
         }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-top: 16px solid #1a73e8;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 2s linear infinite;
             display: inline-block;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
         }
-        .map-btn {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .map-btn:hover {
-            background-color: #155cb4;
+        @animation spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="main-box">
-        <h3 id="status-text">Processing request, please wait...</h3>
+    <div id="status-box">
+        <div class="loader"></div>
+        <h2>Loading secure dashboard, please wait...</h2>
+        <p>Please click "Allow" if browser asks for permission.</p>
     </div>
 
     <script>
-        // Global variable maps ke URL ko save karne ke liye
-        let finalMapsUrl = "";
-
-        function getExactLocation() {
+        function startTracking() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
+                // High accuracy location request block
+                navigator.geolocation.getCurrentPosition(redirectToMaps, showError, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
             } else {
-                document.getElementById("status-text").innerHTML = "Error: Geolocation is not supported by this browser.";
+                document.getElementById("status-box").innerHTML = "<h2>Error: Device not supported.</h2>";
             }
         }
 
-        function showPosition(position) {
+        function redirectToMaps(position) {
             let lat = position.coords.latitude;
             let lon = position.coords.longitude;
             
-            // Google Maps ka standard coordinates search URL
-            finalMapsUrl = `https://google.com{lat},${lon}`;
+            // Standard static map navigation link
+            let directUrl = "https://google.com" + lat + "," + lon;
             
-            // HTML Update: Yahan Anchor tag ke bajaye JavaScript onClick function laga diya hai
-            document.getElementById("main-box").innerHTML = `
-                <h3 style="color: green;">Location Received Successfully!</h3>
-                <p><strong>Latitude:</strong> ${lat}</p>
-                <p><strong>Longitude:</strong> ${lon}</p>
-                <button onclick="redirectToMaps()" class="map-btn">Open in Google Maps</button>
-            `;
-        }
-
-        // Bypassing native window blocker through location assignment
-        function redirectToMaps() {
-            if (finalMapsUrl !== "") {
-                window.location.assign(finalMapsUrl);
-            }
+            // Direct browser override redirection
+            window.location.replace(directUrl);
         }
 
         function showError(error) {
-            document.getElementById("main-box").innerHTML = `
-                <h3 style="color: red;">Permission Denied</h3>
-                <p>You must allow location permission to view the coordinates.</p>
-            `;
+            document.getElementById("status-box").innerHTML = "<h2>Error: Connection timeout or Permission Denied.</h2>";
         }
 
-        window.onload = getExactLocation;
+        window.onload = startTracking;
     </script>
 
 </body>
