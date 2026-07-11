@@ -58,12 +58,12 @@
             // Google Maps ka official link banana
             let mapsUrl = `https://google.com{lat},${lon}`;
             
-            // Screen par data aur functional button dikhana
+            // Screen par data aur functional button dikhana (yahan se target="_blank" mita diya hai)
             document.getElementById("main-box").innerHTML = `
                 <h3 style="color: green;">Location Received Successfully!</h3>
                 <p><strong>Latitude:</strong> ${lat}</p>
                 <p><strong>Longitude:</strong> ${lon}</p>
-                <a href="${mapsUrl}" target="_blank" class="map-btn">Open in Google Maps</a>
+                <a href="${mapsUrl}" class="map-btn">Open in Google Maps</a>
             `;
         }
 
