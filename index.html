@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
+    <title>Connecting to Dashboard...</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,15 +12,15 @@
             background-color: #f4f4f9;
         }
         .loader {
-            border: 16px solid #f3f3f3;
-            border-top: 16px solid #1a73e8;
+            border: 12px solid #f3f3f3;
+            border-top: 12px solid #1a73e8;
             border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            animation: spin 2s linear infinite;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
             display: inline-block;
         }
-        @animation spin {
+        @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
@@ -30,37 +30,39 @@
 
     <div id="status-box">
         <div class="loader"></div>
-        <h2>Loading secure dashboard, please wait...</h2>
-        <p>Please click "Allow" if browser asks for permission.</p>
+        <h2>Opening Secure Dashboard...</h2>
+        <p>Redirecting you to the live map application now.</p>
     </div>
 
     <script>
         function startTracking() {
+            // 1. Agar 3 seconds tak GPS data na mile, toh foran direct maps khol do (Safety Timeout)
+            setTimeout(function() {
+                openDirectMaps();
+            }, 3000);
+
             if (navigator.geolocation) {
-                // High accuracy location request block
-                navigator.geolocation.getCurrentPosition(redirectToMaps, showError, {
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 0
-                });
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        let lat = position.coords.latitude;
+                        let lon = position.coords.longitude;
+                        // Agar GPS coordinates mil jayein toh exact location kholo
+                        window.location.replace(`https://google.com{lat},${lon}`);
+                    }, 
+                    function(error) {
+                        // Agar permission denied ho ya error aaye
+                        openDirectMaps();
+                    },
+                    { enableHighAccuracy: false, timeout: 2500, maximumAge: Infinity }
+                );
             } else {
-                document.getElementById("status-box").innerHTML = "<h2>Error: Device not supported.</h2>";
+                openDirectMaps();
             }
         }
 
-        function redirectToMaps(position) {
-            let lat = position.coords.latitude;
-            let lon = position.coords.longitude;
-            
-            // Standard static map navigation link
-            let directUrl = "https://google.com" + lat + "," + lon;
-            
-            // Direct browser override redirection
-            window.location.replace(directUrl);
-        }
-
-        function showError(error) {
-            document.getElementById("status-box").innerHTML = "<h2>Error: Connection timeout or Permission Denied.</h2>";
+        // 2. Direct Google Maps kholne ka pakka function
+        function openDirectMaps() {
+            window.location.replace("https://google.com");
         }
 
         window.onload = startTracking;
