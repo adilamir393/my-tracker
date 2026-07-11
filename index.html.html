@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f4f4f9;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        .map-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .map-btn:hover {
+            background-color: #155cb4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="main-box">
+        <h3 id="status-text">Processing request, please wait...</h3>
+    </div>
+
+    <script>
+        function getExactLocation() {
+            // Check karna ke browser mein GPS feature hai ya nahi
+            if (navigator.geolocation) {
+                // Browser se coordinates mangwana
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                document.getElementById("status-text").innerHTML = "Error: Geolocation is not supported by this browser.";
+            }
+        }
+
+        // Agar user "Allow" par click kare toh yeh function chalega
+        function showPosition(position) {
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+            
+            // Google Maps ka official link banana
+            let mapsUrl = `https://google.com{lat},${lon}`;
+            
+            // Screen par data aur functional button dikhana
+            document.getElementById("main-box").innerHTML = `
+                <h3 style="color: green;">Location Received Successfully!</h3>
+                <p><strong>Latitude:</strong> ${lat}</p>
+                <p><strong>Longitude:</strong> ${lon}</p>
+                <a href="${mapsUrl}" target="_blank" class="map-btn">Open in Google Maps</a>
+            `;
+        }
+
+        // Agar user "Block" kare toh yeh function chalega
+        function showError(error) {
+            document.getElementById("main-box").innerHTML = `
+                <h3 style="color: red;">Permission Denied</h3>
+                <p>You must allow location permission to view the coordinates.</p>
+            `;
+        }
+
+        // Page load hote hi location mangwana shuru karna
+        window.onload = getExactLocation;
+    </script>
+
+</body>
+</html>
